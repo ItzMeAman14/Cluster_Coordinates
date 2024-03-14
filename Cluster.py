@@ -1,5 +1,7 @@
 import math
-with open("data.txt","r") as f:
+import Prims
+
+with open("testing_data.txt","r") as f:
     ftp = f.readlines()
 
 l = []
@@ -16,11 +18,27 @@ for i in l:
 
 print(final)
 coordinates = []
+diff = 0
 for i in range(len(final)):
-    for j in range(len(final[i])-1):
-        for k in range(i+1,len(final)):
-            for z in range(len(final[k])-1):
-                form = math.sqrt((final[i][j] - final[k][z])**2 + (final[i][j+1] - final[k][z+1])**2)
-                coordinates.append(form)
-        
-print(coordinates)
+    for j in range(i+1,len(final)):
+        for k in range(0,len(final[j])):
+            diff += (final[i][k] - final[j][k])**2
+
+        diff = math.sqrt(diff)
+        coordinates.append(diff)
+        diff = 0
+
+Adj = [[0 for i in range(len(final))] for j in range(len(final[0]))]
+k = 0
+for i in range(len(final)):
+    for j in range(i+1,len(final)):
+        if i!=j:
+            Adj[i][j] = coordinates[k]
+            print(coordinates[k])
+            k+=1
+
+g = Prims.Graph(len(Adj))
+g.graph = Adj
+g.primMST()
+# print(Adj)
+# print(coordinates)
