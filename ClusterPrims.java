@@ -1,3 +1,36 @@
+/* Sample Output:
+Points found:
+1: [3.5, 7.9, 4.8]
+2: [2.9, 13.3, 1.2]
+3: [17.9, 13.2, 5.0]
+4: [17.7, 0.5, 15.4]
+5: [19.0, 7.0, 11.9]
+6: [3.6, 1.0, 3.1]
+7: [0.5, 18.1, 18.7]
+
+Adjacency:
+	  1	  2	  3	  4	  5	  6	  7	
+	-----	-----	-----	-----	-----	-----	-----	
+1 |	0.0	6.518	15.346	19.203	17.072	7.107	17.5	
+2 |	6.518	0.0	15.474	24.177	20.332	12.466	18.304	
+3 |	15.346	15.474	0.0	16.416	9.341	18.893	22.682	
+4 |	19.203	24.177	16.416	0.0	7.496	18.718	24.829	
+5 |	17.072	20.332	9.341	7.496	0.0	18.724	22.621	
+6 |	7.107	12.466	18.893	18.718	18.724	0.0	23.353	
+7 |	17.5	18.304	22.682	24.829	22.621	23.353	0.0	
+
+MST:
+	  1	  2	  3	  4	  5	  6	  7	
+	-----	-----	-----	-----	-----	-----	-----	
+1 |	0.0	6.518	15.346	0.0	0.0	7.107	17.5	
+2 |	6.518	0.0	0.0	0.0	0.0	0.0	0.0	
+3 |	15.346	0.0	0.0	0.0	9.341	0.0	0.0	
+4 |	0.0	0.0	0.0	0.0	7.496	0.0	0.0	
+5 |	0.0	0.0	9.341	7.496	0.0	0.0	0.0	
+6 |	7.107	0.0	0.0	0.0	0.0	0.0	0.0	
+7 |	17.5	0.0	0.0	0.0	0.0	0.0	0.0
+*/
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,54 +48,38 @@ public class ClusterPrims {
 		return Math.round(Math.sqrt(sum) * 1000) / 1000.0d;
 	}
 
-	//https://www.programiz.com/dsa/prim-algorithm
+	// https://www.programiz.com/dsa/prim-algorithm
 	public static Double[][] Prim(Double G[][], int V) {
-		int no_edge; // number of edge
+		int no_edge;
 
-		// create a array to track selected vertex
-		// selected will become true otherwise false
 		boolean[] selected = new boolean[V];
 
-		// set selected false initially
 		Arrays.fill(selected, false);
 
-		// set number of edge to 0
 		no_edge = 0;
 
-		// the number of egde in minimum spanning tree will be
-		// always less than (V -1), where V is number of vertices in
-		// graph
-
-		// choose 0th vertex and make it true
 		selected[0] = true;
 
-		// print for edge and weight
 		Double MST[][] = new Double[V][V];
 		for (Double[] i : MST) {
 			Arrays.fill(i, 0.0d);
 		}
 
 		while (no_edge < V - 1) {
-			// For every vertex in the set S, find the all adjacent vertices
-			// , calculate the distance from the vertex selected at step 1.
-			// if the vertex is already in the set S, discard it otherwise
-			// choose another vertex nearest to selected vertex at step 1.
-
 			Double min = Double.POSITIVE_INFINITY;
 			int x = 0; // row number
 			int y = 0; // col number
 
 			for (int i = 0; i < V; i++) {
-				if (selected[i] == true) {
-					for (int j = 0; j < V; j++) {
-						// not in selected and there is an edge
-						if (!selected[j] && Double.compare(G[i][j], 0) != 0) {
-							if (Double.compare(min, G[i][j]) > 0) {
-								min = G[i][j];
-								x = i;
-								y = j;
-							}
-						}
+				if (selected[i] == false)
+					continue;
+				for (int j = 0; j < V; j++) {
+					if (selected[j] || Double.compare(G[i][j], 0) == 0)
+						continue;
+					if (Double.compare(min, G[i][j]) > 0) {
+						min = G[i][j];
+						x = i;
+						y = j;
 					}
 				}
 			}
@@ -73,6 +90,12 @@ public class ClusterPrims {
 		}
 
 		return MST;
+	}
+
+	public static void printGraph(Double[][] graph, String message) {
+		System.out.println();
+		System.out.println(message);
+		printGraph(graph);
 	}
 
 	public static void printGraph(Double[][] graph) {
@@ -97,9 +120,13 @@ public class ClusterPrims {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static List<List<Double>> getPointsFromFile() {
+		return getPointsFromFile("data.txt");
+	}
+
+	public static List<List<Double>> getPointsFromFile(String fileName) {
+		List<List<Double>> points = new ArrayList<>();
 		try (Scanner sc = new Scanner(new File("data.txt"))) {
-			List<List<Double>> points = new ArrayList<>();
 			while (sc.hasNext()) {
 				List<Double> point = new ArrayList<>();
 
@@ -111,31 +138,35 @@ public class ClusterPrims {
 
 				points.add(point);
 			}
-
-			System.out.println("Points found:");
-			for (int i = 0; i < points.size(); i++) {
-				System.out.println((i + 1) + ": " + points.get(i));
-			}
-
-			Double[][] adjacency = new Double[points.size()][points.size()];
-			for (int i = 0; i < points.size() - 1; i++) {
-				for (int j = i + 1; j < points.size(); j++) {
-					adjacency[i][j] = FindDiff(points.get(i), points.get(j));
-					adjacency[j][i] = FindDiff(points.get(i), points.get(j));
-				}
-			}
-
-			System.out.println();
-			System.out.println("Adjacency:");
-			printGraph(adjacency);
-
-			adjacency = Prim(adjacency, adjacency.length);
-
-			System.out.println();
-			System.out.println("MST:");
-			printGraph(adjacency);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return points;
+	}
+
+	public static void main(String[] args) {
+		List<List<Double>> points = getPointsFromFile();
+
+		if (points.size() <= 0)
+			return;
+
+		System.out.println("Points found:");
+		for (int i = 0; i < points.size(); i++) {
+			System.out.println((i + 1) + ": " + points.get(i));
+		}
+
+		Double[][] adjacency = new Double[points.size()][points.size()];
+		for (int i = 0; i < points.size() - 1; i++) {
+			for (int j = i + 1; j < points.size(); j++) {
+				adjacency[i][j] = FindDiff(points.get(i), points.get(j));
+				adjacency[j][i] = FindDiff(points.get(i), points.get(j));
+			}
+		}
+
+		printGraph(adjacency, "Adjacency:");
+
+		adjacency = Prim(adjacency, adjacency.length);
+
+		printGraph(adjacency, "MST:");
 	}
 }
