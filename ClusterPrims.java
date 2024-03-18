@@ -168,5 +168,15 @@ public class ClusterPrims {
 		adjacency = Prim(adjacency, adjacency.length);
 
 		printGraph(adjacency, "MST:");
+
+		Double sum = 0d;
+		for (int i = 0; i < adjacency.length; i++) {
+			for (int j = 0; j < i; j++) {
+				sum += adjacency[i][j];
+			}
+		}
+
+		System.out.println("Average (w.r.t. vertices): " + (sum / adjacency.length));
+		System.out.println("Average (w.r.t. edges): " + (sum / (adjacency.length - 1)));
 	}
 }
