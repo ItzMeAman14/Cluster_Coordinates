@@ -1,13 +1,24 @@
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class Cluster {
 	public static void main(String[] args) {
-		List<List<Double>> points = getPointsFromFile("Iris.txt");
+		HashMap<String,Double> data = new HashMap<>();
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Enter filename:");
+		String file_name = sc.nextLine();
+		file_name += ".txt";
+
+		List<List<Double>> points = getPointsFromFile(file_name);
+		double rows = points.size();
+		double cols = points.get(0).size();
+		
+		data.put("rows", rows);
+		data.put("cols", cols);
 
 		if (points.size() <= 0)
 			return;
@@ -25,12 +36,19 @@ public class Cluster {
 			}
 		}
 
-		System.out.println("\n\n\nAplying kruskals...");
+		System.out.println("\n\n\nApplying kruskals...");
 		Double sum = Kruskal.KruskalAlgo(points.size(), adjacency);
-		System.out.println("Sum (Kruskal): " + sum);
+		Double AvgV = (sum / adjacency.length);
+		Double AvgE = (sum / adjacency.length - 1);
 
-		System.out.println("Average (w.r.t. vertices): " + (sum / adjacency.length));
-		System.out.println("Average (w.r.t. edges): " + (sum / (adjacency.length - 1)));
+		System.out.println("Sum (Kruskal): " + sum);
+		System.out.println("Average (w.r.t. vertices): " + AvgV);
+		System.out.println("Average (w.r.t. edges): " + AvgE);
+
+		data.put("AvgV",AvgV);
+		data.put("AvgE",AvgE);
+
+		System.out.println(data); // Instead of this return data.
 	}
 
 	public static Double FindDiff(List<Double> A, List<Double> B) {
@@ -82,9 +100,18 @@ public class Cluster {
 		}
 	}
 
-	public static List<List<Double>> getPointsFromFile() {
-		return getPointsFromFile("data.txt");
-	}
+	// public static List<List<Double>> getPointsFromFile() {
+	// 	try{
+	// 		Scanner sc = new Scanner(System.in);
+	// 		System.out.println("Enter filename:");
+	// 		String file_name = sc.nextLine();
+	// 	}
+	// 	catch(Exception e){
+	// 		e.printStackTrace();
+	// 	}
+	// 	file_name += ".txt";
+	// 	return getPointsFromFile(file_name);
+	// }
 
 	public static List<List<Double>> getPointsFromFile(String fileName) {
 		List<List<Double>> points = new ArrayList<>();
